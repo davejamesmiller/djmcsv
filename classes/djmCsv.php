@@ -1,5 +1,5 @@
 <?php /*
-Copyright (c) 2010 Dave Miller
+Copyright (c) 2010-2012 Dave James Miller
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -19,28 +19,28 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
- * @author Dave Miller
- * @copyright Copyright (c) 2010 Dave Miller
- * @license http://www.dave-miller.com/mit-license MIT License
+ * @author Dave James Miller
+ * @copyright Copyright (c) 2010-2012 Dave Miller
+ * @license http://davejamesmiller.com/mit-license MIT License
  */
 
 class djmCsv
 {
-    
+
     public static function headers($options = array())
     {
         $options = array_merge(array(
             'filename' => null,
         ), $options);
-        
+
         header('Content-Type: text/csv');
         ini_set('html_errors', false);
-        
+
         if ($options['filename']) {
             header('Content-Disposition: attachment; filename=' . $options['filename']);
         }
     }
-    
+
     public static function generateRow($row, $options = array())
     {
         $options = array_merge(array(
@@ -49,17 +49,17 @@ class djmCsv
             'escape'    => '"',
             'excel'     => false,
         ), $options);
-        
+
         $output = '';
         $firstCol = true;
-        
+
         foreach ($row as $col) {
             if ($firstCol) {
                 $firstCol = false;
             } else {
                 $output .= $options['delimiter'];
             }
-            
+
             if ($options['excel']) {
                 if (is_string($col) && is_numeric($col)) {
                     // Excel hack to display phone numbers correctly!
@@ -67,24 +67,24 @@ class djmCsv
                     $output .= '=';
                 }
             }
-            
+
             $output .= $options['enclosure']
                     .  str_replace($options['enclosure'], $options['escape'] . $options['enclosure'], $col)
                     .  $options['enclosure'];
         }
-        
+
         return $output;
     }
-    
+
     public static function generate($data, $options = array())
     {
         $options = array_merge(array(
             'headings' => false,
         ), $options);
-        
+
         $output = '';
         $firstRow = true;
-        
+
         foreach ($data as $row) {
             if ($firstRow) {
                 if ($options['headings']) {
@@ -102,13 +102,13 @@ class djmCsv
             } else {
                 $output .= "\n";
             }
-            
+
             $output .= self::generateRow($row, $options);
         }
-        
+
         return $output;
     }
-    
+
     public static function output($data, $options = array())
     {
         // Generate first so any exceptions are shown in the browser not in the file
@@ -116,5 +116,5 @@ class djmCsv
         self::headers($options);
         echo $data;
     }
-    
+
 }
