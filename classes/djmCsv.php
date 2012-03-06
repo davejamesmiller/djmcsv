@@ -41,39 +41,61 @@ class djmCsv
         }
     }
 
+    public static function generateCell($cell, $options = array())
+    {
+        $options = array_merge(array(
+            'enclosure' => '"',
+            'escape'    => '"',
+            'excel'     => false,
+            'encoding'  => false,
+        ), $options);
+
+        // Excel hack to display phone numbers correctly!
+        // http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
+        $prefix = '';
+        if ($options['excel']) {
+            if (is_string($cell) && is_numeric($cell)) {
+                $prefix = '=';
+            }
+        }
+
+        // Convert encoding
+        if ($options['encoding']) {
+            $encoding = explode(':', $options['encoding'], 2);
+            if (count($encoding) == 2) {
+                // 'encoding' => 'from:to'
+                $cell = mb_convert_encoding($cell, $encoding[1], $encoding[0]);
+            } else {
+                // 'encoding' => 'to'
+                $cell = mb_convert_encoding($cell, $encoding[0]);
+            }
+        }
+
+        return $prefix . $options['enclosure']
+             . str_replace($options['enclosure'], $options['escape'] . $options['enclosure'], $cell)
+             . $options['enclosure'];
+    }
+
+    public static function outputCell($cell, $options = array())
+    {
+        echo self::generateCell($cell, $options);
+    }
+
     public static function generateRow($row, $options = array())
     {
         $options = array_merge(array(
             'delimiter' => ',',
-            'enclosure' => '"',
-            'escape'    => '"',
-            'excel'     => false,
         ), $options);
 
         $output = '';
         $firstCol = true;
 
-        foreach ($row as $col) {
-            if ($firstCol) {
-                $firstCol = false;
-            } else {
-                $output .= $options['delimiter'];
-            }
-
-            if ($options['excel']) {
-                if (is_string($col) && is_numeric($col)) {
-                    // Excel hack to display phone numbers correctly!
-                    // http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
-                    $output .= '=';
-                }
-            }
-
-            $output .= $options['enclosure']
-                    .  str_replace($options['enclosure'], $options['escape'] . $options['enclosure'], $col)
-                    .  $options['enclosure'];
+        $cells = array();
+        foreach ($row as $cell) {
+            $cells[] = self::generateCell($cell, $options);
         }
 
-        return $output;
+        return implode($options['delimiter'], $cells);
     }
 
     public static function outputRow($row, $options = array())
