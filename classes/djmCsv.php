@@ -76,6 +76,11 @@ class djmCsv
         return $output;
     }
 
+    public static function outputRow($row, $options = array())
+    {
+        echo self::generateRow($row, $options) . "\n";
+    }
+
     public static function generate($data, $options = array())
     {
         $options = array_merge(array(
@@ -95,15 +100,12 @@ class djmCsv
                     } else {
                         $headings = (array) array_keys($row);
                     }
-                    $output .= self::generateRow($headings, $options);
-                    $output .= "\n";
+                    $output .= self::generateRow($headings, $options) . "\n";
                 }
                 $firstRow = false;
-            } else {
-                $output .= "\n";
             }
 
-            $output .= self::generateRow($row, $options);
+            $output .= self::generateRow($row, $options) . "\n";
         }
 
         return $output;
