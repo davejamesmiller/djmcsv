@@ -41,6 +41,11 @@ class djmCsv
         }
     }
 
+    public static function getUtf8Bom()
+    {
+        return "\xEF\xBB\xBF";
+    }
+
     public static function generateCell($cell, $options = array())
     {
         $options = array_merge(array(
@@ -107,9 +112,15 @@ class djmCsv
     {
         $options = array_merge(array(
             'headings' => false,
+            'utf8' => false,
         ), $options);
 
         $output = '';
+
+        if ($options['utf8']) {
+            $output .= self::getUtf8Bom();
+        }
+
         $firstRow = true;
 
         foreach ($data as $row) {
